@@ -9,6 +9,7 @@ kv_cache_config:
   free_gpu_memory_fraction: 0.70
 
 cuda_graph_config:
+  mode: decode
   batch_sizes: [1, 2, 4, 8]
   enable_padding: true
 
