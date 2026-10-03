@@ -34,8 +34,9 @@ Request queue
   -> CUDA page-table attention
   -> TensorRT-LLM backend
 
-The CUDA Graph path captures the stable autoregressive decode step and replays
-it without rebuilding the individual kernel launch sequence.
+For true disaggregated serving, TensorRT-LLM can place the context/prefill
+worker and generation/decode worker on separate GPUs and transfer KV cache
+blocks between them. See dlse_runtime/docs/disaggregated_deployment.md.
 
 ## Resume bullet mapping
 
@@ -85,9 +86,10 @@ Run:
     ctest --test-dir build --output-on-failure
     ./build/dlse_runtime_bench
 
-Or use:
+Or:
 
-    ./dlse_runtime/scripts/run_host_validation.sh
+    make test
+    make dlse-bench
 
 The host path is useful even without CUDA because it proves scheduler and page
 allocator semantics independently from GPU-specific integration.
@@ -103,13 +105,17 @@ Run this on a machine with a compatible NVIDIA driver and CUDA toolkit:
     ./build-cuda/dlse_paged_attention_bench
     ./build-cuda/dlse_cuda_graph_bench 10000
 
+Or:
+
+    make dlse-cuda
+
 Use a CUDA architecture that matches the actual machine. For example, Ampere
 RTX 3090/A6000 uses 86 and A100 uses 80.
 
-The paged-attention benchmark reports both numerical error and CUDA-event
-timings. The graph benchmark reports baseline and graph host enqueue overhead.
+The paged-attention benchmark reports numerical error and CUDA-event timing.
+The graph benchmark reports baseline and graph host enqueue overhead.
 
-## TensorRT-LLM backend
+## TensorRT-LLM aggregated backend
 
 Install the optional dependency inside the target NVIDIA environment:
 
@@ -127,20 +133,59 @@ The benchmark records request-level TTFT, inter-token latency and aggregate
 generated tokens per second.
 
 The configuration in dlse_runtime/configs/dlse-trtllm.yaml enables chunked
-prefill, paged KV cache settings, block reuse and padded CUDA Graph batch
-sizes.
+prefill, KV-cache block reuse, KV-cache memory policy, and CUDA Graph batch
+sizes. TensorRT-LLM exposes these runtime controls through its current LLM
+serving API. (See the project benchmark protocol before interpreting the
+numbers.)
 
-For a service deployment, the current TensorRT-LLM CLI can be used with this
-configuration:
+## Disaggregated TensorRT-LLM deployment
 
-    trtllm-serve MODEL --config dlse_runtime/configs/dlse-trtllm.yaml
+TensorRT-LLM's current trtllm-serve tooling supports a disaggregated topology
+with separate context and generation workers, plus a disaggregated router.
 
-The installed TensorRT-LLM version should be recorded in the benchmark output
-alongside the model revision and GPU information.
+The included scripts are:
+
+    ./dlse_runtime/scripts/run_context_server.sh MODEL
+    ./dlse_runtime/scripts/run_generation_server.sh MODEL
+    ./dlse_runtime/scripts/run_disaggregated_server.sh
+
+The worker configuration uses:
+
+    cache_transceiver_config:
+      backend: NIXL
+
+and the router configuration is in:
+
+    dlse_runtime/configs/disaggregated-cluster.yaml
+
+This is the path to use when the project is evaluated as a genuine
+context/prefill versus generation/decode serving system rather than as an
+aggregated single-GPU server.
+
+## Metrics and experiment collection
+
+Record the environment:
+
+    ./dlse_runtime/scripts/record_environment.sh       > dlse_runtime/results/environment.txt
+
+Run the batch-size experiment matrix:
+
+    ./dlse_runtime/scripts/run_trtllm_matrix.sh MODEL
+
+The resulting JSON files are deliberately raw benchmark artifacts. Keep the
+exact GPU, driver, CUDA, TensorRT-LLM, model revision, quantization and
+parallelism settings with them.
+
+The server exposes a metrics endpoint in the TensorRT-LLM serving path. The
+helper command:
+
+    ./dlse_runtime/scripts/collect_server_metrics.sh
+
+saves the response as a raw JSON artifact.
 
 ## Benchmark discipline
 
-The three numeric resume claims are deliberately treated as measured targets:
+The three numeric resume claims are treated as measured targets:
 
 - 8x throughput: optimized tokens/s divided by the documented baseline
 - >60% VRAM recovery: KV-cache reservation reduction against the explicit
@@ -149,11 +194,17 @@ The three numeric resume claims are deliberately treated as measured targets:
   GPU
 
 The repository does not hard-code these numbers into the implementation.
-Raw benchmark results and the environment used to obtain them should be kept
-with the release.
+
+A performance claim should be promoted only when:
+1. the benchmark code is committed;
+2. the raw result is saved;
+3. the environment is recorded;
+4. baseline and optimized settings are explicit;
+5. repeated trials support the reported value.
 
 See:
 - dlse_runtime/docs/architecture.md
+- dlse_runtime/docs/disaggregated_deployment.md
 - dlse_runtime/docs/benchmark_protocol.md
 - dlse_runtime/docs/evidence_matrix.md
 - dlse_runtime/third_party/SOURCES.md
