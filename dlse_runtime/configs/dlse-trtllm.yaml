@@ -12,4 +12,6 @@ cuda_graph_config:
   batch_sizes: [1, 2, 4, 8]
   enable_padding: true
 
+enable_iter_perf_stats: true
+enable_iter_req_stats: true
 print_iter_log: true
