@@ -1,4 +1,4 @@
-.PHONY: test dlse-test dlse-bench dlse-cuda legacy-run clean
+.PHONY: test dlse-test dlse-bench dlse-cuda clean
 
 test: dlse-test
 
@@ -17,10 +17,6 @@ dlse-cuda:
 	cmake --build build-cuda --parallel
 	./build-cuda/dlse_paged_attention_bench
 	./build-cuda/dlse_cuda_graph_bench 10000
-
-# Preserve the original compact llama2.c command as an explicit legacy target.
-legacy-run:
-	$(MAKE) -f Makefile.llama2c run
 
 clean:
 	rm -rf build build-cuda
