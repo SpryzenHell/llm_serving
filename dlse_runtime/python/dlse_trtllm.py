@@ -7,7 +7,10 @@ from typing import Any, AsyncIterator, Optional
 
 try:
     from tensorrt_llm import LLM, SamplingParams
-    from tensorrt_llm.llmapi import CudaGraphConfig, KvCacheConfig
+    from tensorrt_llm.llmapi import (
+        CudaGraphConfig,
+        KvCacheConfig,
+    )
 except ImportError as exc:
     LLM = None
     SamplingParams = None
@@ -25,16 +28,13 @@ class DLSEConfig:
     max_seq_len: int = 4096
     max_num_tokens: int = 8192
     kv_free_fraction: float = 0.70
-    cuda_graph_batch_sizes: tuple[int, ...] = (1, 2, 4, 8)
+    cuda_graph_batch_sizes: tuple[int, ...] = (
+        1, 2, 4, 8
+    )
 
 
 class TensorRTLLMBackend:
-    """Production GPU execution adapter.
-
-    The control-plane scheduler remains independent of TensorRT-LLM. This
-    adapter configures the vendor runtime with the same serving constraints:
-    chunked prefill, paged KV cache and CUDA Graph batch shapes.
-    """
+    """TensorRT-LLM execution adapter for the DLSE control plane."""
 
     def __init__(self, config: DLSEConfig):
         if LLM is None:
@@ -49,11 +49,14 @@ class TensorRTLLMBackend:
                 config.cuda_graph_batch_sizes
             ),
             enable_padding=True,
+            mode="decode",
         )
 
         kv_config = KvCacheConfig(
-            free_gpu_memory_fraction=
+            enable_block_reuse=True,
+            free_gpu_memory_fraction=(
                 config.kv_free_fraction
+            ),
         )
 
         self._llm = LLM(
