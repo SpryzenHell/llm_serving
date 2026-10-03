@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
 project(DLSE LANGUAGES CXX)
 
-option(DLSE_ENABLE_CUDA "Build CUDA benchmarks" OFF)
+option(
+    DLSE_ENABLE_CUDA
+    "Build DLSE CUDA kernels and benchmarks"
+    OFF
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(dlse_runtime_core
+add_library(
+    dlse_runtime_core
     src/runtime.cpp
 )
 
@@ -18,7 +23,10 @@ target_include_directories(
 
 target_compile_options(
     dlse_runtime_core
-    PRIVATE -Wall -Wextra -Wpedantic
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
 )
 
 add_executable(
@@ -32,6 +40,7 @@ target_link_libraries(
 )
 
 enable_testing()
+
 add_test(
     NAME dlse_runtime_tests
     COMMAND dlse_runtime_tests
@@ -50,6 +59,15 @@ target_link_libraries(
 if(DLSE_ENABLE_CUDA)
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
+
+    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set(
+            CMAKE_CUDA_ARCHITECTURES
+            86
+            CACHE STRING
+            "CUDA architectures for DLSE"
+        )
+    endif()
 
     add_library(
         dlse_cuda
@@ -70,9 +88,8 @@ if(DLSE_ENABLE_CUDA)
     set_target_properties(
         dlse_cuda
         PROPERTIES
-        CUDA_STANDARD 17
-        CUDA_STANDARD_REQUIRED ON
-        CUDA_ARCHITECTURES native
+            CUDA_STANDARD 17
+            CUDA_STANDARD_REQUIRED ON
     )
 
     add_executable(
@@ -85,6 +102,13 @@ if(DLSE_ENABLE_CUDA)
         PRIVATE dlse_cuda CUDA::cudart
     )
 
+    set_target_properties(
+        dlse_paged_attention_bench
+        PROPERTIES
+            CUDA_STANDARD 17
+            CUDA_STANDARD_REQUIRED ON
+    )
+
     add_executable(
         dlse_cuda_graph_bench
         benchmarks/cuda_graph_bench.cu
@@ -93,5 +117,12 @@ if(DLSE_ENABLE_CUDA)
     target_link_libraries(
         dlse_cuda_graph_bench
         PRIVATE CUDA::cudart
+    )
+
+    set_target_properties(
+        dlse_cuda_graph_bench
+        PROPERTIES
+            CUDA_STANDARD 17
+            CUDA_STANDARD_REQUIRED ON
     )
 endif()
