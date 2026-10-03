@@ -1,0 +1,24 @@
+# Configuration shared by context (prefill) and generation (decode) workers.
+# Both workers use the same KV transfer backend.
+
+max_batch_size: 8
+max_seq_len: 4096
+max_num_tokens: 8192
+enable_chunked_prefill: true
+
+kv_cache_config:
+  enable_block_reuse: true
+  free_gpu_memory_fraction: 0.70
+
+cuda_graph_config:
+  batch_sizes: [1, 2, 4, 8]
+  enable_padding: true
+
+cache_transceiver_config:
+  backend: NIXL
+  kv_transfer_timeout_ms: 5000
+  kv_cache_bounce_size_mb: 64
+
+enable_iter_perf_stats: true
+enable_iter_req_stats: true
+print_iter_log: true
