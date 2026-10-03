@@ -36,10 +36,7 @@ async def measure_request(
                 output.outputs[0].token_ids
             )
         except (AttributeError, IndexError):
-            token_count = max(
-                token_count,
-                1,
-            )
+            token_count = max(token_count, 1)
 
     ended = time.perf_counter()
 
@@ -56,7 +53,8 @@ async def measure_request(
     return {
         "ttft_ms": (
             (arrivals[0] - started) * 1000.0
-            if arrivals else None
+            if arrivals
+            else None
         ),
         "itl_p50_ms": (
             statistics.median(inter_token_ms)
@@ -116,16 +114,27 @@ async def main() -> None:
     args = parser.parse_args()
 
     if args.requests <= 0:
-        raise SystemExit("--requests must be positive")
+        raise SystemExit(
+            "--requests must be positive"
+        )
+
+    supported_graph_sizes = [
+        size
+        for size in (1, 2, 4, 8)
+        if size <= args.requests
+    ]
+
+    if args.requests not in supported_graph_sizes:
+        supported_graph_sizes.append(
+            args.requests
+        )
 
     backend = TensorRTLLMBackend(
         DLSEConfig(
             model=args.model,
             max_batch_size=args.requests,
             cuda_graph_batch_sizes=tuple(
-                size
-                for size in (1, 2, 4, 8)
-                if size <= max(args.requests, 8)
+                sorted(set(supported_graph_sizes))
             ),
         )
     )
