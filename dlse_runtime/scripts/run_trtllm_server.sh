@@ -8,4 +8,4 @@ fi
 
 MODEL="$1"
 
-exec trtllm-serve "$MODEL"     --config dlse_runtime/configs/dlse-trtllm.yaml
+exec trtllm-serve serve "$MODEL"     --config dlse_runtime/configs/dlse-trtllm.yaml
