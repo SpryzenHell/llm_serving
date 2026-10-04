@@ -1,4 +1,4 @@
-Host validation executed from the DLSE runtime source tree.
+Host validation executed from the DLSE repository source tree.
 
 $ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 $ cmake --build build --parallel
@@ -7,7 +7,7 @@ $ ctest --test-dir build --output-on-failure
 1/1 Test #1: dlse_runtime_tests ...............   Passed
 100% tests passed, 0 tests failed out of 1
 Total Test time = 0.01 sec
-$ ./build/dlse_runtime_bench
+$ ./build/bin/dlse_runtime_bench
 max_decode_gap_iterations=1
 long_prompt_prefilled=4096
 kv_logical_tokens=3392
