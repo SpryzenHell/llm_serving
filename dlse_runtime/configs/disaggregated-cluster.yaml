@@ -1,18 +1,14 @@
-# OpenAI-compatible disaggregated router.
 hostname: localhost
 port: 8000
-backend: pytorch
 
 context_servers:
   num_instances: 1
-  urls:
-    - "localhost:8001"
   router:
     type: round_robin
+  urls:
+    - "localhost:8001"
 
 generation_servers:
   num_instances: 1
   urls:
     - "localhost:8002"
-  router:
-    type: round_robin
