@@ -1,74 +1,113 @@
 # Disaggregated deployment
 
-TensorRT-LLM's disaggregated architecture separates the context/prefill and
-generation/decode phases onto different GPU workers.
+TensorRT-LLM supports separating the context/prefill and generation/decode
+phases onto different worker processes. The context worker handles prompt
+processing and produces the KV cache needed by the generation worker.
 
-The topology is:
+The repository uses this layout for its two-GPU local example:
 
+```
 client
   |
   v
-trtllm-serve disaggregated :8000
-  |                         |
-  v                         v
-context :8001           generation :8002
-(prefill)               (decode)
-  |                         ^
-  +---- KV cache transfer--+
+router :8000
+  |                 |
+  v                 v
+context :8001    generation :8002
+GPU 0             GPU 1
+  |                 ^
+  +--- KV transfer-+
+```
 
-## 1. Start the context worker
+## 1. Start the workers
+
+The context worker uses the configuration in
+`dlse_runtime/configs/dlse-disagg-context.yaml`.
+
+The generation worker uses
+`dlse_runtime/configs/dlse-disagg-generation.yaml`.
+
+On a two-GPU host the repository can start both workers and the router with:
+
+    ./dlse_runtime/scripts/run_local_disaggregated.sh MODEL
+
+The script assigns GPU 0 to context and GPU 1 to generation, waits for both
+workers to report healthy, then starts the router.
+
+Worker logs are written to:
+
+    logs/disaggregated/
+
+For separate terminals, the individual commands are:
 
     ./dlse_runtime/scripts/run_context_server.sh MODEL
-
-Run this process on the GPU that should own prompt processing.
-
-## 2. Start the generation worker
-
     ./dlse_runtime/scripts/run_generation_server.sh MODEL
-
-Run this process on the GPU that should own autoregressive token generation.
-
-## 3. Start the disaggregated router
-
     ./dlse_runtime/scripts/run_disaggregated_server.sh
 
-The router configuration is in:
+## 2. KV-cache transfer
 
-    dlse_runtime/configs/disaggregated-cluster.yaml
-
-The example uses context port 8001, generation port 8002 and router port 8000.
-
-## KV transfer
-
-Both workers use:
+Both workers set:
 
     cache_transceiver_config:
       backend: NIXL
 
-NIXL is the selected KV-cache transfer backend in this configuration. The
-worker configuration is shared so context and generation agree on the transfer
-backend and KV-cache settings.
+NIXL is the selected cache-transfer backend. The same backend must be present
+on both sides of the context/generation transfer.
 
-## How this relates to DLSE
+The repository leaves `max_tokens_in_buffer` unset and uses the runtime default.
 
-The C++ scheduler in dlse_runtime/src/runtime.cpp is the control-plane
-research implementation for decode-first continuous batching and chunked
-prefill.
+## 3. Context worker
 
-The TensorRT-LLM worker topology is the production execution substrate. The
-two should not be represented as one implementation.
+The context worker additionally sets:
 
-## Measuring phase isolation
+    disable_overlap_scheduler: true
 
-To demonstrate the effect of disaggregation:
+The TensorRT-LLM disaggregated serving documentation recommends this setting for
+context workers.
 
-1. Run an aggregated TensorRT-LLM serve instance.
-2. Run the two-worker disaggregated topology.
-3. Send the same prompt/output workload to both.
-4. Compare TTFT and p50/p95/p99 ITL.
-5. Record GPU memory separately for the context and generation workers.
-6. Save the raw metrics output.
+## 4. Router configuration
 
-Current TensorRT-LLM metrics expose iteration latency, GPU memory and KV-cache
-statistics. These are the relevant evidence sources for the performance
-claims.
+The router file is:
+
+    dlse_runtime/configs/disaggregated-cluster.yaml
+
+It lists the context and generation worker URLs and uses round-robin routing for
+the context group.
+
+## 5. Readiness and inference
+
+Worker readiness:
+
+    curl -s -o /dev/null -w "context=%{http_code}
+"       http://127.0.0.1:8001/health
+
+    curl -s -o /dev/null -w "generation=%{http_code}
+"       http://127.0.0.1:8002/health
+
+Router readiness:
+
+    curl -s -o /dev/null -w "router=%{http_code}
+"       http://127.0.0.1:8000/health
+
+Run the repository smoke test against the router:
+
+    ./dlse_runtime/scripts/smoke_test.sh MODEL
+
+## 6. Measuring the benefit of disaggregation
+
+Run the same model and workload first with the aggregated server and then with
+the disaggregated topology.
+
+Record:
+- TTFT;
+- inter-token latency;
+- output tokens/s;
+- context-worker GPU memory;
+- generation-worker GPU memory;
+- KV-cache statistics from `/metrics`.
+
+Keep the model revision, quantization, GPU assignment, TensorRT-LLM version and
+runtime settings fixed between runs.
+
+The repository does not include fabricated GPU numbers. The measurements should
+be captured on the target hardware and committed as raw benchmark artifacts.
