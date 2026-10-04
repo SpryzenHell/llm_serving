@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<line x1="90" y1="470" x2="950" y2="470" stroke="black"/>
+<line x1="90" y1="80" x2="90" y2="470" stroke="black"/>
+<text x="520" y="535" text-anchor="middle" font-family="sans-serif" font-size="16">Scheduler iteration</text>
+<text x="24" y="275" transform="rotate(-90 24 275)" text-anchor="middle" font-family="sans-serif" font-size="16">Tokens scheduled</text>
+<polyline fill="none" stroke="black" stroke-width="2" points="100,385 120,385 140,385 160,385 180,385 200,385 220,385 240,385 260,385 280,385 300,385 320,385 340,385 360,385 380,385 400,385 420,385 440,385 460,385 480,385 500,385 520,385 540,385 560,385 580,385 600,385 620,385 640,385 660,385 680,385 700,385 720,385 740,385 760,385 780,385 800,385 820,385 840,385 860,385 880,385 900,385"/>
+<polyline fill="none" stroke="black" stroke-width="2" stroke-dasharray="6,5" points="100,255 120,255 140,255 160,255 180,255 200,255 220,255 240,255 260,255 280,255 300,255 320,255 340,255 360,255 380,255 400,255 420,255 440,255 460,255 480,255 500,255 520,255 540,255 560,255 580,255 600,255 620,255 640,255 660,255 680,255 700,255 720,255 740,255 760,255 780,255 800,255 820,255 840,255 860,255 880,255 900,255"/>
+<text x="730" y="245" font-family="sans-serif" font-size="15">32 prefill tokens / iteration</text>
+<text x="730" y="375" font-family="sans-serif" font-size="15">8 decode tokens / iteration</text>
+<text x="520" y="55" text-anchor="middle" font-family="sans-serif" font-size="23">Continuous batching trace - first 40 benchmark iterations</text>
+</svg>
