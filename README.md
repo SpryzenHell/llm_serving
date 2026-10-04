@@ -467,6 +467,27 @@ Run the full request-count matrix:
 This runs request counts 1, 2, 4 and 8 and stores JSON results under
 `dlse_runtime/results/`.
 
+### Baseline versus optimized serving
+
+For the throughput claim, use the A/B runner:
+
+```bash
+./dlse_runtime/scripts/run_serve_ab.sh \
+  TinyLlama/TinyLlama-1.1B-Chat-v1.0
+```
+
+The script starts the baseline server on port 8100 and the optimized server on
+port 8200. It runs the same random workload at concurrency 1, 2, 4 and 8 using
+TensorRT-LLM's `benchmark_serving` tool and stores the raw JSON results under
+`dlse_runtime/results/serve_ab/`.
+
+The baseline leaves chunked prefill and CUDA Graph configuration disabled. The
+optimized configuration enables chunked prefill, KV-cache block reuse and
+decode CUDA Graph buckets.
+
+This A/B test measures the combined serving configuration. The separate CUDA
+benchmark is used for the contiguous-versus-paged attention comparison.
+
 ---
 
 ## 13. Runtime metrics
