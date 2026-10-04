@@ -1,5 +1,5 @@
 # TensorRT-LLM generation/decode worker.
-# It receives KV-cache metadata from the context worker.
+# It receives KV-cache metadata and blocks from the context worker.
 
 backend: pytorch
 max_batch_size: 8
@@ -17,7 +17,6 @@ cuda_graph_config:
 
 cache_transceiver_config:
   backend: NIXL
-  max_tokens_in_buffer: 4096
 
 enable_iter_perf_stats: true
 enable_iter_req_stats: true
