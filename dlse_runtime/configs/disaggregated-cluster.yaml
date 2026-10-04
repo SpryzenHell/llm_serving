@@ -1,4 +1,4 @@
-# Local example topology for trtllm-serve disaggregated.
+# OpenAI-compatible disaggregated router.
 hostname: localhost
 port: 8000
 backend: pytorch
@@ -7,8 +7,12 @@ context_servers:
   num_instances: 1
   urls:
     - "localhost:8001"
+  router:
+    type: round_robin
 
 generation_servers:
   num_instances: 1
   urls:
     - "localhost:8002"
+  router:
+    type: round_robin
