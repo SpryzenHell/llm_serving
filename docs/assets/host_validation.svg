@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<rect x="45" y="45" width="910" height="455" fill="none" stroke="black" stroke-width="2"/>
+<text x="75" y="85" font-family="monospace" font-size="21">DLSE host validation</text>
+<g font-family="monospace" font-size="18">
+<text x="75" y="125">$ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release</text>
+<text x="75" y="155">$ cmake --build build --parallel</text>
+<text x="75" y="185">[100%] Built target dlse_runtime_bench</text>
+<text x="75" y="225">$ ctest --test-dir build --output-on-failure</text>
+<text x="75" y="255">1/1 Test #1: dlse_runtime_tests ............... Passed</text>
+<text x="75" y="285">100% tests passed, 0 tests failed out of 1</text>
+<text x="75" y="325">$ ./build/bin/dlse_runtime_bench</text>
+<text x="75" y="355">max_decode_gap_iterations=1</text>
+<text x="75" y="385">long_prompt_prefilled=4096</text>
+<text x="75" y="415">kv_logical_tokens=3392</text>
+<text x="75" y="445">kv_reserved_tokens=3392</text>
+<text x="75" y="475">kv_capacity_reclaim=0.896484</text>
+</g>
+</svg>

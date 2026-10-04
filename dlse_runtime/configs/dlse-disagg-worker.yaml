@@ -1,0 +1,20 @@
+# Context/prefill and generation workers share this transfer backend.
+# The context worker additionally disables overlap scheduling.
+
+backend: pytorch
+max_batch_size: 8
+max_seq_len: 4096
+max_num_tokens: 8192
+enable_chunked_prefill: true
+
+kv_cache_config:
+  enable_block_reuse: true
+  free_gpu_memory_fraction: 0.70
+
+cache_transceiver_config:
+  backend: NIXL
+  max_tokens_in_buffer: 4096
+
+enable_iter_perf_stats: true
+enable_iter_req_stats: true
+print_iter_log: true
