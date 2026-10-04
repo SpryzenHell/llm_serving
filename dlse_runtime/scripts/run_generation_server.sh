@@ -8,4 +8,4 @@ fi
 
 MODEL="$1"
 
-exec trtllm-serve serve "$MODEL"     --config dlse_runtime/configs/dlse-disagg-worker.yaml     --server_role GENERATION
+CUDA_VISIBLE_DEVICES=1 exec trtllm-serve "$MODEL"     --host 127.0.0.1     --port 8002     --backend pytorch     --config dlse_runtime/configs/dlse-disagg-generation.yaml
