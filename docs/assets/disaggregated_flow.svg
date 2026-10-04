@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<text x="500" y="50" text-anchor="middle" font-family="sans-serif" font-size="25">Disaggregated serving flow</text>
+<rect x="55" y="230" width="160" height="80" fill="none" stroke="black" stroke-width="2"/>
+<text x="135" y="278" text-anchor="middle" font-family="sans-serif" font-size="18">Client</text>
+<rect x="300" y="210" width="200" height="120" fill="none" stroke="black" stroke-width="2"/>
+<text x="400" y="255" text-anchor="middle" font-family="sans-serif" font-size="18">Disaggregated</text>
+<text x="400" y="282" text-anchor="middle" font-family="sans-serif" font-size="18">router :8000</text>
+<rect x="650" y="120" width="250" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="775" y="160" text-anchor="middle" font-family="sans-serif" font-size="18">Context / Prefill</text>
+<text x="775" y="188" text-anchor="middle" font-family="sans-serif" font-size="16">GPU 0 :8001</text>
+<rect x="650" y="350" width="250" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="775" y="390" text-anchor="middle" font-family="sans-serif" font-size="18">Generation / Decode</text>
+<text x="775" y="418" text-anchor="middle" font-family="sans-serif" font-size="16">GPU 1 :8002</text>
+<g fill="none" stroke="black" stroke-width="2">
+<path d="M215 270H300"/>
+<path d="M500 245L650 170"/>
+<path d="M500 295L650 400"/>
+<path d="M775 220V350" stroke-dasharray="8,6"/>
+</g>
+<text x="790" y="286" font-family="sans-serif" font-size="16">KV-cache transfer</text>
+<text x="500" y="515" text-anchor="middle" font-family="sans-serif" font-size="15">The router dispatches context-only and generation-only requests; workers exchange KV-cache metadata and blocks.</text>
+</svg>
