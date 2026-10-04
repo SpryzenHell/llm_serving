@@ -15,7 +15,6 @@ kv_cache_config:
 
 cache_transceiver_config:
   backend: NIXL
-  max_tokens_in_buffer: 4096
 
 enable_iter_perf_stats: true
 enable_iter_req_stats: true
