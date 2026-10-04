@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<line x1="120" y1="470" x2="880" y2="470" stroke="black"/>
+<line x1="120" y1="90" x2="120" y2="470" stroke="black"/>
+<rect x="250" y="118" width="180" height="352" fill="none" stroke="black" stroke-width="2"/>
+<rect x="570" y="431" width="180" height="39" fill="none" stroke="black" stroke-width="2"/>
+<text x="340" y="505" text-anchor="middle" font-family="sans-serif" font-size="16">Contiguous</text>
+<text x="660" y="505" text-anchor="middle" font-family="sans-serif" font-size="16">Paged</text>
+<text x="500" y="55" text-anchor="middle" font-family="sans-serif" font-size="23">KV-cache reservation from executed host benchmark</text>
+<text x="500" y="535" text-anchor="middle" font-family="sans-serif" font-size="15">Contiguous: 128.00 MiB | Paged: 13.25 MiB | reservation reduction: 89.6484%</text>
+</svg>
