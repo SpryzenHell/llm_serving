@@ -8,4 +8,4 @@ fi
 
 MODEL="$1"
 
-exec trtllm-serve serve "$MODEL"     --config dlse_runtime/configs/dlse-trtllm.yaml
+exec trtllm-serve "$MODEL"     --host 127.0.0.1     --port 8000     --backend pytorch     --config dlse_runtime/configs/dlse-trtllm.yaml
