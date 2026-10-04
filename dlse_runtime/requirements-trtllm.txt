@@ -1,2 +1,3 @@
-# Install inside the target NVIDIA CUDA/TensorRT-LLM environment.
-tensorrt-llm
+# Pin the Python package to the same release used by the
+# repository's NVIDIA container helpers.
+tensorrt-llm==1.3.0rc29
